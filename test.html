@@ -84,6 +84,8 @@
         </div>
         <div class="form-group"><input type="email" id="f-email" required placeholder="Email" aria-label="Email"></div>
         <div class="form-group"><input type="tel" id="f-tel" required placeholder="Téléphone" aria-label="Téléphone"></div>
+        <div class="form-group"><input type="text" id="f-ville" required placeholder="Ville" aria-label="Ville"></div>
+        <div class="form-group"><textarea id="f-message" rows="3" placeholder="Un mot sur ta motivation (optionnel)" aria-label="Message" style="resize:vertical;"></textarea></div>
         <button type="submit" class="btn btn-primary" style="width:100%" id="submitBtn">
           <span id="btnText">Envoyer ma candidature</span>
           <div class="loader" id="submitLoader"></div>
@@ -116,6 +118,14 @@
       db = getFirestore(app);
     } catch(e) {
       console.warn("Firebase non configuré.", e);
+    }
+
+    // Événement "démarrage" anonyme, utilisé par le dashboard pour calculer
+    // le taux de complétion (candidatures envoyées / tests démarrés).
+    // N'échoue jamais silencieusement de façon bloquante : une erreur ici
+    // ne doit pas empêcher l'utilisateur de passer le test.
+    if (db) {
+      addDoc(collection(db, "quiz_events"), { type: "start", date: serverTimestamp() }).catch(() => {});
     }
 
     // ========================================================================
@@ -281,6 +291,8 @@
           nom: document.getElementById('f-nom').value,
           email: document.getElementById('f-email').value,
           tel: document.getElementById('f-tel').value,
+          ville: document.getElementById('f-ville').value,
+          message: document.getElementById('f-message').value,
           scorePct: window.candidateResult.pct,
           reponses: window.candidateResult.answers,
           status: "À contacter",
